@@ -1,104 +1,202 @@
-# HTTP Methods
+# HTTP Methods (HTTP Verbs)
+
+This article explains **HTTP methods** in a clear, practical way for a **Backend Engineer**.  
+HTTP methods are a core concept behind **REST APIs**, API design, and correct client–server interaction.
+
+---
+
+## Table of Contents
+
+1. [What Are HTTP Methods?](#1-what-are-http-methods)
+2. [HTTP and Resources](#2-http-and-resources)
+3. [GET](#3-get)
+4. [POST](#4-post)
+5. [PUT](#5-put)
+6. [PATCH](#6-patch)
+7. [DELETE](#7-delete)
+8. [Safe vs Idempotent Methods](#8-safe-vs-idempotent-methods)
+9. [Common Backend Mistakes](#9-common-backend-mistakes)
+10. [Summary Table](#10-summary-table)
+11. [Key Takeaways for Backend Engineers](#11-key-takeaways-for-backend-engineers)
 
 ---
 
 ## 1. What Are HTTP Methods?
 
-HTTP methods (or **HTTP verbs**) indicate the action a client wants to perform on a resource.  
-They are **essential for REST APIs**, as every request must include a method.
+**HTTP methods (also called HTTP verbs)** define **what action** the client wants to perform on a server resource.
 
-HTTP operates on a **request-response model**:
+Every HTTP request **must** include a method.
 
-1. **Client** sends a request
-2. **Server** responds with data or an error
+HTTP follows a **request–response model**:
 
-HTTP is **stateless**, meaning each request is independent. REST APIs leverage this model, organizing interactions around **resources** accessed via unique endpoints.
+1. Client sends a request (with method)
+2. Server processes it
+3. Server sends a response (data or error)
+
+HTTP is **stateless**:
+
+-   each request is independent
+-   server does not remember previous requests
+-   all required data must be sent every time
+
+REST APIs are built on this model and organize interactions around **resources**.
 
 ---
 
-## 2. Common HTTP Methods
+## 2. HTTP and Resources
 
-HTTP methods correspond to **CRUD operations** (Create, Read, Update, Delete):
+A **resource** is any object accessible via HTTP:
 
-### 2.1 GET
+-   user
+-   product
+-   order
+-   file
 
--   **Purpose**: Retrieve data from the server
--   **Request body**: Usually empty
--   **Example**:
+Each resource is identified by a **URL**.
+
+Examples:
+
+```text
+/products
+/products/123
+/users/42/orders
+```
+
+HTTP methods define **what you do** with these resources.
+
+---
+
+## 3. GET
+
+### Purpose
+
+Retrieve data from the server.
+
+### Key Properties
+
+-   Does **not** modify server state
+-   Request body is usually empty
+-   Can be cached
+-   Can be repeated safely
+
+### Example
 
 ```http
 GET /products HTTP/1.1
-Host: example.com
+Host: api.example.com
 ```
 
--   **Behavior**:
+### Typical Behavior
 
-    -   `/products` → returns all products
-    -   `/products/123` → returns product with ID 123
+-   `/products` → list of products
+-   `/products/123` → product with ID 123
 
--   **Safe and idempotent**: Yes
+### Backend Notes
+
+-   Must never create, update, or delete data
+-   Ideal for read-only operations
+
+**Safe**: ✅
+**Idempotent**: ✅
 
 ---
 
-### 2.2 POST
+## 4. POST
 
--   **Purpose**: Create a new resource
--   **Request body**: Contains data for the new resource
--   **Example**:
+### Purpose
+
+Create a new resource or trigger a server-side action.
+
+### Key Properties
+
+-   Sends data in request body
+-   Usually changes server state
+-   Cannot be safely repeated
+
+### Example
 
 ```http
 POST /products HTTP/1.1
-Host: example.com
 Content-Type: application/json
 
 {
   "name": "Sneakers",
   "color": "blue",
-  "price": 59.95,
-  "currency": "USD"
+  "price": 59.95
 }
 ```
 
--   **Behavior**: Adds a new product to the database
--   **Safe**: No
--   **Idempotent**: No (multiple requests create multiple resources)
+### Typical Behavior
+
+-   Creates a new product
+-   Returns `201 Created`
+
+### Backend Notes
+
+-   Multiple identical POST requests usually create multiple resources
+-   Often used for:
+
+    -   creation
+    -   login
+    -   complex operations
+
+**Safe**: ❌
+**Idempotent**: ❌
 
 ---
 
-### 2.3 PUT
+## 5. PUT
 
--   **Purpose**: Replace an existing resource
--   **Request body**: Complete resource data
--   **Example**:
+### Purpose
+
+Replace an **entire resource** with new data.
+
+### Key Properties
+
+-   Requires full resource representation
+-   Overwrites existing data
+-   Same request → same result
+
+### Example
 
 ```http
 PUT /products/123 HTTP/1.1
-Host: example.com
 Content-Type: application/json
 
 {
   "name": "Sneakers",
   "color": "red",
-  "price": 49.95,
-  "currency": "USD"
+  "price": 49.95
 }
 ```
 
--   **Behavior**: Overwrites the existing product
--   **Safe**: No
--   **Idempotent**: Yes
+### Backend Notes
+
+-   Missing fields may be deleted
+-   Should be used carefully
+-   Best for full updates
+
+**Safe**: ❌
+**Idempotent**: ✅
 
 ---
 
-### 2.4 PATCH
+## 6. PATCH
 
--   **Purpose**: Update specific fields of an existing resource
--   **Request body**: Only the fields to be updated
--   **Example**:
+### Purpose
+
+Update **part of a resource**.
+
+### Key Properties
+
+-   Sends only changed fields
+-   Less destructive than PUT
+-   Idempotency depends on implementation
+
+### Example
 
 ```http
 PATCH /products/123 HTTP/1.1
-Host: example.com
 Content-Type: application/json
 
 {
@@ -106,57 +204,121 @@ Content-Type: application/json
 }
 ```
 
--   **Behavior**: Updates only the `price` field, leaving other fields unchanged
--   **Safe**: No
--   **Idempotent**: Not guaranteed
+### Backend Notes
+
+-   Most commonly used update method
+-   Easier to evolve APIs
+-   Must handle partial updates correctly
+
+**Safe**: ❌
+**Idempotent**: ⚠️ (not guaranteed)
 
 ---
 
-### 2.5 DELETE
+## 7. DELETE
 
--   **Purpose**: Remove a resource
--   **Example**:
+### Purpose
+
+Remove a resource from the server.
+
+### Example
 
 ```http
 DELETE /products/123 HTTP/1.1
-Host: example.com
+Host: api.example.com
 ```
 
--   **Behavior**: Deletes the product with ID 123
--   **Safe**: No
--   **Idempotent**: Yes
+### Backend Notes
+
+-   Repeating DELETE has no further effect
+-   Often returns:
+
+    -   `204 No Content`
+    -   or `200 OK`
+
+**Safe**: ❌
+**Idempotent**: ✅
 
 ---
 
-## 3. Safe vs Idempotent Methods
+## 8. Safe vs Idempotent Methods
 
 ### Safe Methods
 
--   Do **not modify** resources
--   **Examples**: `GET`, `HEAD`
+Do **not modify** server state.
+
+Examples:
+
+-   `GET`
+-   `HEAD`
+
+Safe ≠ secure
+Safe means **no data change**, not access control.
+
+---
 
 ### Idempotent Methods
 
--   **Same outcome** regardless of how many times executed
--   **Examples**: `GET`, `HEAD`, `PUT`, `DELETE`
--   **Non-idempotent**: `POST`, `PATCH` (depending on behavior)
+Multiple identical requests result in the **same final state**.
+
+Examples:
+
+-   `GET`
+-   `PUT`
+-   `DELETE`
+
+Not idempotent:
+
+-   `POST`
+-   many `PATCH` implementations
 
 ---
 
-## 4. Summary Table
+## 9. Common Backend Mistakes
 
-| Method | Purpose          | Request Body | Safe | Idempotent     |
-| ------ | ---------------- | ------------ | ---- | -------------- |
-| GET    | Read data        | No           | Yes  | Yes            |
-| POST   | Create resource  | Yes          | No   | No             |
-| PUT    | Replace resource | Yes          | No   | Yes            |
-| PATCH  | Update resource  | Partial      | No   | Not guaranteed |
-| DELETE | Remove resource  | No           | No   | Yes            |
+❌ Using `GET` to modify data
+❌ Using `POST` for updates
+❌ Mixing `PUT` and `PATCH` without rules
+❌ Ignoring idempotency in distributed systems
+❌ Returning wrong status codes
+
+📌 Correct method usage improves:
+
+-   API clarity
+-   caching
+-   security
+-   client expectations
 
 ---
 
-**Takeaways for Backend Engineers**:
+## 10. Summary Table
 
--   Always include an **HTTP method** when interacting with REST APIs.
--   Understand which methods are **safe** and **idempotent** to prevent unexpected behavior.
--   Use **GET** for reading, **POST** for creating, **PUT/PATCH** for updating, and **DELETE** for removal.
+| Method | Purpose          | Body | Safe | Idempotent     |
+| ------ | ---------------- | ---- | ---- | -------------- |
+| GET    | Read data        | No   | Yes  | Yes            |
+| POST   | Create resource  | Yes  | No   | No             |
+| PUT    | Replace resource | Yes  | No   | Yes            |
+| PATCH  | Partial update   | Yes  | No   | Not guaranteed |
+| DELETE | Remove resource  | No   | No   | Yes            |
+
+---
+
+## 11. Key Takeaways for Backend Engineers
+
+-   HTTP methods define **intent**
+-   REST APIs depend on correct method usage
+-   Safe and idempotent methods enable:
+
+    -   retries
+    -   caching
+    -   scalability
+
+-   Choose:
+
+    -   `GET` → read
+    -   `POST` → create / actions
+    -   `PUT` → full replace
+    -   `PATCH` → partial update
+    -   `DELETE` → removal
+
+Understanding HTTP methods is **mandatory** for building reliable backend systems.

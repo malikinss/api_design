@@ -1,147 +1,307 @@
 # HTTP Protocol Evolution: HTTP Versions
 
+This lecture-style article explains **how HTTP evolved**, why new versions appeared, and what every **backend engineer** must understand about HTTP versions in practice.
+
+---
+
+## Table of Contents
+
+1. [Introduction](#1-introduction)
+2. [Application Layer Protocols](#2-application-layer-protocols)
+3. [What Is HTTP?](#3-what-is-http)
+4. [HTTP 0.9](#4-http-09)
+5. [HTTP 1.0](#5-http-10)
+6. [HTTP 1.1](#6-http-11)
+7. [HTTP 2.0](#7-http-20)
+8. [HTTP 3.0](#8-http-30)
+9. [HTTP Versions Comparison](#9-http-versions-comparison)
+10. [Why HTTP Evolution Matters for Backend Engineers](#10-why-http-evolution-matters-for-backend-engineers)
+
 ---
 
 ## 1. Introduction
 
-In networking, protocols are organized using models like **OSI** and **TCP/IP**, each with distinct layers:
+Network communication is structured using layered models such as:
 
--   **Network Layer**: e.g., IP
--   **Transport Layer**: e.g., TCP, UDP
--   **Application Layer**: e.g., HTTP
+### OSI Model (simplified)
 
-Protocols evolve over time and have multiple versions. This lecture focuses on the **HTTP application protocol**, covering:
+-   **Network layer** → IP
+-   **Transport layer** → TCP / UDP
+-   **Application layer** → HTTP, SMTP, FTP
 
-1. Application layer protocols
-2. HTTP general purpose
-3. HTTP versions and their differences
+### TCP/IP Model
+
+-   Application
+-   Transport
+-   Internet
+-   Network access
+
+**HTTP belongs to the Application Layer**, meaning it defines **how applications talk**, not how packets are routed.
+
+Protocols evolve because:
+
+-   the web grows
+-   performance requirements increase
+-   security becomes critical
+
+This document focuses on **HTTP evolution from 0.9 to 3.0**.
 
 ---
 
 ## 2. Application Layer Protocols
 
-The **application layer** (OSI Layer 7 / TCP/IP Layer 4) provides end-to-end communication between applications.  
-It is the **closest layer to the user**: browsers, email clients, streaming apps operate here.
+The **application layer** is the closest to the user.
 
-### Common architectures
+Examples of applications:
 
-1. **Client-Server**: Multiple clients request services from a central server
-2. **Peer-to-Peer (P2P)**: Independent computers collaborate in a network
-3. **Hybrid**: Combines client-server and peer-to-peer
+-   Web browsers
+-   Mobile apps
+-   Email clients
+-   Backend services
 
-### Examples of application layer protocols
+### Common Network Architectures
 
--   HTTP, FTP, TELNET, POP, DNS, SMTP
+1. **Client–Server**
 
----
+    - Browser → Backend API
+    - Most web applications
 
-## 3. The Hypertext Transfer Protocol (HTTP)
+2. **Peer-to-Peer (P2P)**
 
-**HTTP** is a layer 7 (OSI) / layer 4 (TCP/IP) protocol for **distributed hypermedia systems**.
+    - Nodes communicate directly
+    - Example: BitTorrent
 
--   **Agile**: Works independently of addressing and transport
--   **Connection-based**: Relies on TCP/IP
--   **Sessions**: Series of message exchanges between client and server
+3. **Hybrid**
+    - Mix of centralized and P2P
+    - Example: modern messaging systems
 
-### History
+### Common Application Layer Protocols
 
--   **HTTP 0.9** (early 1990s):
-    -   Only `GET` method
-    -   ASCII text only
--   Later versions added headers, new methods, content types, and status codes
-
----
-
-## 3.1 HTTP 1.0 (1996)
-
-Enhancements over 0.9:
-
--   **HTTP headers**: Metadata for flexible communication
--   **Versioning**: Requests include HTTP version
--   **Status codes**: Indicates success or failure
--   **Content-Type**: Supports multiple file types
--   **New methods**: `POST` (send data) and `HEAD` (fetch metadata)
-
-**Summary**: HTTP 1.0 made the protocol **robust and extensible**.
+-   HTTP / HTTPS
+-   FTP
+-   SMTP
+-   POP / IMAP
+-   DNS
+-   TELNET
 
 ---
 
-## 3.2 HTTP 1.1 (1997)
+## 3. What Is HTTP?
 
-Enhancements over 1.0:
+**HTTP (Hypertext Transfer Protocol)** is an application-layer protocol for **distributed hypermedia systems**.
 
--   **Host header**: Required; supports virtual hosts via proxies
--   **Persistent connections**: Multiple requests per connection
--   **Continue status (100)**: Allows clients to send headers first
--   **New methods**: `PUT`, `PATCH`, `DELETE`, `CONNECT`, `TRACE`, `OPTIONS`
--   Other features: compression, byte-range transfers, multi-language support
+Key properties:
 
-**Method Highlights**:
+-   Request–response based
+-   Client initiates communication
+-   Server responds with data
+-   Stateless by design
 
-| Method  | Purpose                   |
-| ------- | ------------------------- |
-| PUT     | Replace resource          |
-| PATCH   | Partial update            |
-| DELETE  | Remove resource           |
-| CONNECT | Tunnel via proxy          |
-| TRACE   | Loopback test             |
-| OPTIONS | Get communication options |
+### HTTP Sessions
 
----
+A **session** is a sequence of:
 
-## 3.3 HTTP 2.0 (2015)
+-   requests
+-   responses
 
-Focus: **Performance improvements**
+Even though HTTP is stateless, sessions are simulated using:
 
--   **Request multiplexing**: Multiple requests simultaneously over one connection
--   **Request prioritization**: Specify order for responses
--   **Automatic compression**: GZip compression enabled automatically
--   **Connection reset**: Close and reopen connections quickly
--   **Server push**: Server proactively sends resources to client cache
--   **Binary protocol**: Replaces plain-text HTTP 1.x
-
-**Summary**: Solves sequential processing, reduces latency, improves efficiency.
+-   cookies
+-   tokens
+-   headers
 
 ---
 
-## 3.4 HTTP 3.0 (2020)
+## 4. HTTP 0.9 (Early 1990s)
 
-**Key change**: Transport protocol switched from **TCP** → **QUIC (UDP-based)**
+The very first HTTP version.
 
--   **QUIC features**: Multiplexing, encryption, fast handshake, low-latency connections
--   **Always encrypted**: No more separate HTTP/HTTPS distinction
--   Aims to improve connection speed and reliability
+### Features
 
----
+-   Only one method: `GET`
+-   No headers
+-   No status codes
+-   Only plain ASCII text
+-   One request → one response → connection closed
 
-## 4. Systematic Summary of HTTP Evolution
+### Example
 
-| Version | Key Features                                                                      |
-| ------- | --------------------------------------------------------------------------------- |
-| 0.9     | Only GET, ASCII text                                                              |
-| 1.0     | Headers, versioning, status codes, Content-Type, POST & HEAD                      |
-| 1.1     | Host header, persistent connections, 6 new methods, compression, byte ranges      |
-| 2.0     | Multiplexing, prioritization, automatic compression, server push, binary protocol |
-| 3.0     | QUIC transport, always encrypted, fast connections                                |
+```http
+GET /index.html
+```
 
-**Method Evolution**:
-
--   GET (0.9)
--   POST, HEAD (1.0)
--   PUT, PATCH, DELETE, CONNECT, TRACE, OPTIONS (1.1)
-
-**Main novelty of 3.0**: Replacing TCP with QUIC for **encryption and faster connections**.
+📌 Extremely limited, but enough for early web pages.
 
 ---
 
-## 5. Conclusion
+## 5. HTTP 1.0 (1996)
 
-HTTP evolved from a **simple ASCII-based GET protocol** to a **powerful binary protocol** supporting modern web systems.  
-Key points for backend engineers:
+HTTP became **usable for real applications**.
 
--   Understand HTTP **requests, responses, headers, status codes**
--   Recognize **method purposes** and evolution
--   Grasp HTTP **performance improvements** (multiplexing, server push)
--   Learn about **transport layer differences** (TCP vs QUIC)
+### New Features
 
-HTTP remains **fundamental** for backend development and REST API design.
+-   Request and response **headers**
+-   HTTP version specified in requests
+-   **Status codes** (200, 404, etc.)
+-   `Content-Type` header
+-   New methods:
+
+    -   `POST`
+    -   `HEAD`
+
+### Example
+
+```http
+POST /login HTTP/1.0
+Content-Type: application/json
+```
+
+📌 HTTP 1.0 introduced **extensibility**.
+
+---
+
+## 6. HTTP 1.1 (1997)
+
+Still widely used today.
+
+### Major Improvements
+
+#### 1. Persistent Connections
+
+-   Multiple requests per TCP connection
+-   Reduced overhead
+
+#### 2. Host Header (Mandatory)
+
+```http
+Host: api.example.com
+```
+
+Allows **multiple websites on one IP** (virtual hosting).
+
+#### 3. New HTTP Methods
+
+| Method  | Purpose               |
+| ------- | --------------------- |
+| PUT     | Replace resource      |
+| PATCH   | Partial update        |
+| DELETE  | Remove resource       |
+| CONNECT | Proxy tunneling       |
+| TRACE   | Debugging             |
+| OPTIONS | Discover capabilities |
+
+#### 4. Performance & Features
+
+-   Compression
+-   Byte-range requests
+-   Language and encoding negotiation
+
+📌 HTTP 1.1 is the **foundation of REST APIs**.
+
+---
+
+## 7. HTTP 2.0 (2015)
+
+Focus: **performance**, not semantics.
+
+### Key Improvements
+
+#### Multiplexing
+
+-   Multiple requests in parallel
+-   No more head-of-line blocking
+
+#### Binary Protocol
+
+-   Replaced text-based format
+-   Faster parsing
+
+#### Header Compression
+
+-   Reduced request size
+
+#### Server Push
+
+-   Server sends resources **before client asks**
+
+Example:
+
+-   HTML requested
+-   CSS and JS pushed automatically
+
+📌 Same HTTP methods, same URLs — faster delivery.
+
+---
+
+## 8. HTTP 3.0 (2020)
+
+### Biggest Change: Transport Layer
+
+| HTTP Version | Transport        |
+| ------------ | ---------------- |
+| 1.x / 2.0    | TCP              |
+| 3.0          | QUIC (UDP-based) |
+
+### Why QUIC?
+
+-   Faster handshakes
+-   Built-in encryption
+-   Better handling of packet loss
+-   Independent streams (no blocking)
+
+### Key Properties
+
+-   Always encrypted
+-   Lower latency
+-   Better performance on mobile networks
+
+📌 HTTP/3 improves **connection reliability**, not API design.
+
+---
+
+## 9. HTTP Versions Comparison
+
+| Version | Key Features                               |
+| ------- | ------------------------------------------ |
+| 0.9     | GET only, ASCII                            |
+| 1.0     | Headers, status codes, POST                |
+| 1.1     | Persistent connections, many methods       |
+| 2.0     | Multiplexing, binary protocol, server push |
+| 3.0     | QUIC, UDP-based, always encrypted          |
+
+### HTTP Method Evolution
+
+-   `GET` → 0.9
+-   `POST`, `HEAD` → 1.0
+-   `PUT`, `PATCH`, `DELETE`, `OPTIONS`, `TRACE`, `CONNECT` → 1.1
+
+---
+
+## 10. Why HTTP Evolution Matters for Backend Engineers
+
+As a backend engineer, you must:
+
+-   Understand how HTTP requests work
+-   Know which version impacts performance
+-   Design APIs that work efficiently over HTTP
+-   Debug latency, headers, caching, and proxies
+
+### Practical Takeaways
+
+-   REST APIs rely heavily on **HTTP 1.1 semantics**
+-   HTTP/2 and HTTP/3 mostly affect **transport performance**
+-   Correct use of headers and methods matters more than version choice
+-   Stateless design remains critical
+
+---
+
+## Final Summary
+
+HTTP evolved from a **simple document-fetching protocol** into a **high-performance foundation of modern APIs**.
+
+A strong backend engineer:
+
+-   Understands HTTP deeply
+-   Uses methods correctly
+-   Thinks about performance and scalability
+-   Knows how transport affects real-world systems

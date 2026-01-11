@@ -1,60 +1,75 @@
 # HTTP (Hypertext Transfer Protocol)
 
+This guide explains **HTTP**, its structure, usage, and why it is essential for backend engineers.
+
 ---
 
-## 1. What Is HTTP?
+## Table of Contents
+
+1. [What is HTTP?](#what-is-http)
+2. [HTTP in the Backend World](#http-in-the-backend-world)
+3. [HTTP Requests](#http-requests)
+4. [HTTP Methods (Verbs)](#http-methods-verbs)
+5. [HTTP Request Headers](#http-request-headers)
+6. [HTTP Request Body](#http-request-body)
+7. [HTTP Responses](#http-responses)
+8. [HTTP Status Codes](#http-status-codes)
+9. [HTTP Response Headers](#http-response-headers)
+10. [HTTP Response Body](#http-response-body)
+11. [Stateless Nature of HTTP](#stateless-nature-of-http)
+12. [HTTP Versions and Connections](#http-versions-and-connections)
+13. [HTTP and Security](#http-and-security)
+14. [Why HTTP Matters for Backend Engineers](#why-http-matters-for-backend-engineers)
+15. [Final Takeaways](#final-takeaways)
+
+---
+
+## 1. What is HTTP?
 
 **HTTP (Hypertext Transfer Protocol)** is the foundational protocol of the World Wide Web.  
-It defines how **clients** and **servers** communicate and exchange data over the internet.
+It defines how **clients** (browsers, apps) and **servers** communicate and exchange data.
 
-HTTP is an **application-layer protocol**, meaning it operates at a high level of the network stack and relies on lower-level protocols (like TCP/IP) to deliver data.
+**Key points:**
 
-### Basic idea
+-   HTTP is an **application-layer protocol**
+-   Relies on **TCP/IP** to deliver data
+-   Follows a **request–response** model
 
--   A **client** (usually a browser or an app) sends an HTTP request
--   A **server** processes the request
--   The server sends back an HTTP response
+**Basic Flow:**
 
-This request–response cycle is the core of how the web works.
+1. Client sends an HTTP request
+2. Server processes the request
+3. Server sends back an HTTP response
+
+This cycle is the backbone of how the web works.
 
 ---
 
 ## 2. HTTP in the Backend World
 
-For a backend engineer, HTTP is critical because:
+Why HTTP matters for backend engineers:
 
--   REST APIs are built on top of HTTP
+-   REST APIs are built on HTTP
 -   Almost all web services communicate via HTTP
 -   Understanding HTTP helps debug APIs, performance issues, and security problems
 
-Every API call you write or consume is ultimately an HTTP request.
+Every API call you write is ultimately an HTTP request.
 
 ---
 
-## 3. What Is an HTTP Request?
+## 3. HTTP Requests
 
 An **HTTP request** is how a client asks a server for data or requests an action.
 
-Each request contains **encoded information** that tells the server:
+### Request Components:
 
--   what resource is needed
--   what action to perform
--   who is making the request
--   how to interpret the data
+-   **HTTP version**
+-   **URL**
+-   **HTTP method**
+-   **Request headers**
+-   **Optional body**
 
-### Typical HTTP Request Structure
-
-An HTTP request consists of:
-
-1. HTTP version
-2. URL
-3. HTTP method
-4. HTTP request headers
-5. Optional HTTP body
-
----
-
-## 4. HTTP Request Example
+### Example Request:
 
 ```http
 POST /login HTTP/1.1
@@ -70,11 +85,9 @@ User-Agent: Mozilla/5.0
 
 ---
 
-## 5. HTTP Methods (Verbs)
+## 4. HTTP Methods (Verbs)
 
-An **HTTP method** defines the action the client wants the server to perform.
-
-### Common HTTP Methods
+HTTP methods define what action the client wants the server to perform.
 
 | Method | Purpose       | Typical Use        |
 | ------ | ------------- | ------------------ |
@@ -84,26 +97,26 @@ An **HTTP method** defines the action the client wants the server to perform.
 | PATCH  | Modify data   | Partial update     |
 | DELETE | Remove data   | Delete a resource  |
 
-### Backend Perspective
+**Backend Notes:**
 
--   **GET** should not change server state
--   **POST / PUT / PATCH / DELETE** usually modify data
--   Correct method usage is essential for RESTful APIs
+-   GET should not change server state
+-   POST, PUT, PATCH, DELETE usually modify data
+-   Correct method usage is essential for REST APIs
 
 ---
 
-## 6. HTTP Request Headers
+## 5. HTTP Request Headers
 
-**Headers** are key–value pairs that provide metadata about the request.
+**Headers** are key–value pairs providing metadata about the request.
 
-They tell the server:
+**Purpose:**
 
--   who is making the request
--   what format the data is in
--   what response formats are acceptable
--   authentication details
+-   Identify client
+-   Specify content type
+-   Define acceptable response types
+-   Include authentication credentials
 
-### Common Request Headers
+### Common Request Headers:
 
 ```http
 Content-Type: application/json
@@ -112,26 +125,18 @@ User-Agent: Chrome/120
 Accept: application/json
 ```
 
-📌 Headers are heavily used in:
-
--   authentication
--   content negotiation
--   caching
--   debugging
+**Usage:** authentication, caching, content negotiation, debugging
 
 ---
 
-## 7. HTTP Request Body
+## 6. HTTP Request Body
 
-The **request body** contains the actual data being sent to the server.
+The **body** contains data sent to the server.
 
-It is commonly used with:
+-   Used with POST, PUT, PATCH
+-   GET requests usually **do not** have a body
 
--   POST
--   PUT
--   PATCH
-
-### Example Request Body
+### Example:
 
 ```json
 {
@@ -140,23 +145,19 @@ It is commonly used with:
 }
 ```
 
-📌 GET requests usually **do not** have a body.
-
 ---
 
-## 8. What Is an HTTP Response?
+## 7. HTTP Responses
 
 An **HTTP response** is what the server sends back after processing a request.
 
-### Typical HTTP Response Structure
+### Response Components:
 
-1. HTTP status code
-2. HTTP response headers
-3. Optional HTTP body
+-   HTTP status code
+-   Response headers
+-   Optional body
 
----
-
-## 9. HTTP Response Example
+### Example Response:
 
 ```http
 HTTP/1.1 200 OK
@@ -172,11 +173,9 @@ Content-Length: 52
 
 ---
 
-## 10. HTTP Status Codes
+## 8. HTTP Status Codes
 
-HTTP status codes are **3-digit numbers** indicating the result of a request.
-
-### Status Code Categories
+**Status codes** indicate the result of a request.
 
 | Range | Meaning       |
 | ----- | ------------- |
@@ -186,38 +185,34 @@ HTTP status codes are **3-digit numbers** indicating the result of a request.
 | 4xx   | Client Error  |
 | 5xx   | Server Error  |
 
----
+### Common Codes for Backend Engineers
 
-### Common Status Codes for Backend Engineers
+**Success (2xx)**
 
-#### Success (2xx)
+-   200 OK — request succeeded
+-   201 Created — resource created
+-   204 No Content — success without body
 
--   **200 OK** — request succeeded
--   **201 Created** — resource created
--   **204 No Content** — success without body
+**Client Errors (4xx)**
 
-#### Client Errors (4xx)
+-   400 Bad Request — invalid input
+-   401 Unauthorized — not authenticated
+-   403 Forbidden — no permission
+-   404 Not Found — resource missing
 
--   **400 Bad Request** — invalid input
--   **401 Unauthorized** — not authenticated
--   **403 Forbidden** — no permission
--   **404 Not Found** — resource missing
+**Server Errors (5xx)**
 
-#### Server Errors (5xx)
-
--   **500 Internal Server Error** — generic server failure
--   **502 Bad Gateway** — upstream error
--   **503 Service Unavailable** — overloaded or down
-
-📌 Correct status codes are crucial for API usability.
+-   500 Internal Server Error — generic server failure
+-   502 Bad Gateway — upstream error
+-   503 Service Unavailable — overloaded or down
 
 ---
 
-## 11. HTTP Response Headers
+## 9. HTTP Response Headers
 
 Response headers provide metadata about the returned data.
 
-### Common Response Headers
+### Common Response Headers:
 
 ```http
 Content-Type: application/json
@@ -227,24 +222,24 @@ Cache-Control: no-cache
 
 They inform the client:
 
--   how to parse the body
--   how to cache the response
--   encoding and language
+-   How to parse the body
+-   Caching behavior
+-   Encoding and language
 
 ---
 
-## 12. HTTP Response Body
+## 10. HTTP Response Body
 
-The **response body** contains the requested data.
+The **body** contains the requested data.
 
-Examples:
+**Examples:**
 
--   HTML (for web pages)
--   JSON (for APIs)
+-   HTML (web pages)
+-   JSON (APIs)
 -   XML
 -   Files (images, PDFs)
 
-### Example JSON Response Body
+### Example JSON Response:
 
 ```json
 {
@@ -254,73 +249,61 @@ Examples:
 
 ---
 
-## 13. Stateless Nature of HTTP
+## 11. Stateless Nature of HTTP
 
-HTTP is a **stateless protocol**.
+HTTP is **stateless**:
 
-This means:
+-   Each request is independent
+-   Server does not remember previous requests
+-   Authentication data must be sent every time
 
--   each request is independent
--   the server does not remember previous requests
--   authentication data must be sent every time
-
-📌 Sessions, cookies, and tokens are **workarounds** built on top of HTTP.
+📌 Sessions, cookies, and tokens are workarounds built on top of HTTP.
 
 ---
 
-## 14. HTTP Versions and Connections
+## 12. HTTP Versions and Connections
 
-Originally:
-
--   one TCP connection per request
-
-Modern HTTP (1.1+):
-
--   persistent connections
--   multiple requests over one TCP connection
--   better performance and resource usage
+**HTTP/1.0:** one TCP connection per request
+**HTTP/1.1+:** persistent connections, multiple requests per TCP connection, better performance
 
 ---
 
-## 15. HTTP and Security (DoS / DDoS)
+## 13. HTTP and Security
 
 Because HTTP is stateless:
 
--   attackers can send massive amounts of requests
--   servers must process each one independently
+-   Attackers can send massive amounts of requests
+-   Servers must handle each request individually
 
-### HTTP-based attacks:
+**Backend concerns:**
 
--   considered **Layer 7 (Application Layer)** attacks
--   overwhelm backend logic rather than network bandwidth
-
-📌 This is why backend engineers care about:
-
--   rate limiting
--   authentication
+-   Rate limiting
+-   Authentication
 -   API gateways
--   caching
+-   Caching
+
+**HTTP-based attacks:** Layer 7 (Application Layer) attacks targeting backend logic
 
 ---
 
-## 16. Why HTTP Matters for Backend Engineers
+## 14. Why HTTP Matters for Backend Engineers
 
 Understanding HTTP helps you:
 
--   design better REST APIs
--   debug client–server issues
--   choose correct status codes
--   secure your application
--   reason about performance and scalability
+-   Design better REST APIs
+-   Debug client–server issues
+-   Choose correct status codes
+-   Secure your application
+-   Optimize performance and scalability
 
 ---
 
-## Final Takeaways
+## 15. Final Takeaways
 
 -   HTTP is the foundation of web communication
--   Everything in REST APIs is built on HTTP
--   Requests and responses follow strict structure
--   Status codes and headers matter
+-   REST APIs rely on HTTP
+-   Requests and responses follow strict structures
+-   Status codes and headers are crucial
 -   Statelessness enables scalability but requires careful design
 
 Mastering HTTP is a **mandatory skill** for every backend engineer.

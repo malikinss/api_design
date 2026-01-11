@@ -1,129 +1,184 @@
-# HTTP Response Status Codes: A Guide for Backend Engineers
+# HTTP Response Status Codes
 
-HTTP response status codes indicate whether an HTTP request was successfully completed.  
-They are **grouped into five classes**, each serving a specific purpose.
-
----
-
-## 1. Informational Responses (100–199)
-
-These codes are **interim responses**, usually used to indicate that the request is still being processed.
-
-| Code | Name                    | Description                                              |
-| ---- | ----------------------- | -------------------------------------------------------- |
-| 100  | Continue                | Client should continue the request or ignore if finished |
-| 101  | Switching Protocols     | Server is switching protocols requested by client        |
-| 102  | Processing (Deprecated) | WebDAV: request received but no status yet               |
-| 103  | Early Hints             | Preload resources while server prepares the response     |
+This guide explains **HTTP response status codes**, their meaning, categories, and best practices for backend engineers.
 
 ---
 
-## 2. Successful Responses (200–299)
+## Table of Contents
 
-Indicate that the request was **successfully received and processed**.
-
-| Code | Name                      | Description                                                                                |
-| ---- | ------------------------- | ------------------------------------------------------------------------------------------ |
-| 200  | OK                        | Request succeeded (GET returns data, HEAD returns headers, POST/PUT returns resource info) |
-| 201  | Created                   | New resource created (usually after POST)                                                  |
-| 202  | Accepted                  | Request received but not processed yet (async/batch processing)                            |
-| 203  | Non-Authoritative Info    | Metadata from a third-party/mirror                                                         |
-| 204  | No Content                | No body, only headers                                                                      |
-| 205  | Reset Content             | Client should reset the document that sent the request                                     |
-| 206  | Partial Content           | Response to a range request                                                                |
-| 207  | Multi-Status (WebDAV)     | Information about multiple resources                                                       |
-| 208  | Already Reported (WebDAV) | Avoids repeating internal collection members                                               |
-| 226  | IM Used                   | Response is a result of instance manipulations                                             |
+1. [What Are HTTP Status Codes?](#what-are-http-status-codes)
+2. [Informational Responses (100–199)](#informational-responses-100–199)
+3. [Successful Responses (200–299)](#successful-responses-200–299)
+4. [Redirection Responses (300–399)](#redirection-responses-300–399)
+5. [Client Error Responses (400–499)](#client-error-responses-400–499)
+6. [Server Error Responses (500–599)](#server-error-responses-500–599)
+7. [Best Practices for Backend Engineers](#best-practices-for-backend-engineers)
 
 ---
 
-## 3. Redirection Messages (300–399)
+## What Are HTTP Status Codes?
 
-Used to indicate **URL changes** or **alternate locations**.
+**HTTP status codes** are **3-digit numbers** returned by the server to indicate the result of an HTTP request.
 
-| Code | Name                   | Description                             |
-| ---- | ---------------------- | --------------------------------------- |
-| 300  | Multiple Choices       | More than one possible response         |
-| 301  | Moved Permanently      | Resource moved permanently to a new URL |
-| 302  | Found                  | Temporary redirect to another URI       |
-| 303  | See Other              | Redirect using GET                      |
-| 304  | Not Modified           | Caching: resource unchanged             |
-| 305  | Use Proxy (Deprecated) | Must use a proxy to access resource     |
-| 306  | Unused                 | Reserved in old HTTP specs              |
-| 307  | Temporary Redirect     | Redirect using the same HTTP method     |
-| 308  | Permanent Redirect     | Redirect using same method permanently  |
+They help the client understand whether:
 
----
+-   the request succeeded
+-   it failed
+-   it was redirected
+-   further action is needed
 
-## 4. Client Error Responses (400–499)
+Status codes are grouped into **5 categories**:
 
-Indicate errors on the **client side**.
-
-| Code | Name                            | Description                                     |
-| ---- | ------------------------------- | ----------------------------------------------- |
-| 400  | Bad Request                     | Malformed or invalid request                    |
-| 401  | Unauthorized                    | Client must authenticate                        |
-| 402  | Payment Required                | Rarely used, for digital payments               |
-| 403  | Forbidden                       | Client is known but not allowed                 |
-| 404  | Not Found                       | Resource not found (most common)                |
-| 405  | Method Not Allowed              | HTTP method not supported for this resource     |
-| 406  | Not Acceptable                  | Server cannot provide content matching criteria |
-| 407  | Proxy Authentication Required   | Auth required via proxy                         |
-| 408  | Request Timeout                 | Connection idle timeout                         |
-| 409  | Conflict                        | Request conflicts with server state             |
-| 410  | Gone                            | Resource permanently deleted                    |
-| 411  | Length Required                 | Missing `Content-Length` header                 |
-| 412  | Precondition Failed             | Headers conditions not met                      |
-| 413  | Content Too Large               | Request body exceeds server limit               |
-| 414  | URI Too Long                    | Request URI too long                            |
-| 415  | Unsupported Media Type          | Media format not supported                      |
-| 416  | Range Not Satisfiable           | Requested range cannot be fulfilled             |
-| 417  | Expectation Failed              | `Expect` header cannot be met                   |
-| 418  | I'm a teapot                    | Easter egg / humorous RFC                       |
-| 421  | Misdirected Request             | Sent to wrong server                            |
-| 422  | Unprocessable Content (WebDAV)  | Well-formed but semantically invalid            |
-| 423  | Locked (WebDAV)                 | Resource is locked                              |
-| 424  | Failed Dependency (WebDAV)      | Failed due to previous request failure          |
-| 425  | Too Early                       | Experimental: avoid replay risks                |
-| 426  | Upgrade Required                | Client must upgrade protocol                    |
-| 428  | Precondition Required           | Prevents lost updates                           |
-| 429  | Too Many Requests               | Rate limiting                                   |
-| 431  | Request Header Fields Too Large | Header fields too large                         |
-| 451  | Unavailable For Legal Reasons   | Censored or blocked by law                      |
+1. Informational (1xx)
+2. Successful (2xx)
+3. Redirection (3xx)
+4. Client Errors (4xx)
+5. Server Errors (5xx)
 
 ---
 
-## 5. Server Error Responses (500–599)
+## Informational Responses (100–199)
 
-Indicate errors **on the server side**.
+These codes indicate that the request was received and is being processed.
 
-| Code | Name                            | Description                                          |
-| ---- | ------------------------------- | ---------------------------------------------------- |
-| 500  | Internal Server Error           | Generic server error                                 |
-| 501  | Not Implemented                 | Method not supported (except GET/HEAD)               |
-| 502  | Bad Gateway                     | Invalid response from upstream server                |
-| 503  | Service Unavailable             | Server overloaded or down, `Retry-After` recommended |
-| 504  | Gateway Timeout                 | Upstream server timed out                            |
-| 505  | HTTP Version Not Supported      | Version not supported by server                      |
-| 506  | Variant Also Negotiates         | Circular content negotiation error                   |
-| 507  | Insufficient Storage (WebDAV)   | Cannot store resource                                |
-| 508  | Loop Detected (WebDAV)          | Infinite loop detected                               |
-| 510  | Not Extended                    | HTTP extension not supported                         |
-| 511  | Network Authentication Required | Auth needed to access network                        |
+| Code | Name                | Description                                       |
+| ---- | ------------------- | ------------------------------------------------- |
+| 100  | Continue            | Client can continue sending request body          |
+| 101  | Switching Protocols | Server switches protocol (e.g., HTTP → WebSocket) |
+| 102  | Processing          | WebDAV: request received but not completed        |
+| 103  | Early Hints         | Preload resources before final response           |
+
+**Example:** WebSocket handshake uses `101 Switching Protocols`.
 
 ---
 
-### ✅ Notes for Junior Backend Engineers
+## Successful Responses (200–299)
 
--   **2xx** → success
--   **3xx** → redirection
--   **4xx** → client error
--   **5xx** → server error
+Indicate that the request **was successfully received and processed**.
 
--   Always **log unusual 4xx/5xx codes** for debugging APIs
--   **Understand method semantics** to interpret status codes correctly
--   Common ones to remember: `200 OK`, `201 Created`, `204 No Content`, `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`, `500 Internal Server Error`, `503 Service Unavailable`
+| Code | Name            | When to Use                             |
+| ---- | --------------- | --------------------------------------- |
+| 200  | OK              | Standard success for GET/PUT/PATCH      |
+| 201  | Created         | Resource successfully created (POST)    |
+| 202  | Accepted        | Request accepted but not yet processed  |
+| 204  | No Content      | Success but no body to return           |
+| 206  | Partial Content | Range requests (streaming files/videos) |
+
+**Examples:**
+
+-   `GET /users/42 → 200 OK`
+-   `POST /users → 201 Created`
+-   `DELETE /users/42 → 204 No Content`
 
 ---
 
-This table will help you **quickly identify and troubleshoot HTTP issues** when building backend services or REST APIs.
+## Redirection Responses (300–399)
+
+Used when the resource **has moved** or **another location should be used**.
+
+| Code | Name               | Description                          |
+| ---- | ------------------ | ------------------------------------ |
+| 301  | Moved Permanently  | Permanent redirect (SEO friendly)    |
+| 302  | Found              | Temporary redirect                   |
+| 303  | See Other          | Redirect using GET                   |
+| 304  | Not Modified       | Resource unchanged (used in caching) |
+| 307  | Temporary Redirect | Temporary redirect preserving method |
+| 308  | Permanent Redirect | Permanent redirect preserving method |
+
+**Example (cache):**
+
+```http
+GET /logo.png
+If-None-Match: "abc123"
+
+→ 304 Not Modified
+```
+
+---
+
+## Client Error Responses (400–499)
+
+Errors caused by **incorrect requests from the client**.
+
+| Code | Name                 | Typical Use                       |
+| ---- | -------------------- | --------------------------------- |
+| 400  | Bad Request          | Invalid JSON, missing fields      |
+| 401  | Unauthorized         | Missing or invalid authentication |
+| 403  | Forbidden            | Authenticated but access denied   |
+| 404  | Not Found            | Resource does not exist           |
+| 405  | Method Not Allowed   | Wrong HTTP method                 |
+| 409  | Conflict             | Duplicate or conflicting state    |
+| 422  | Unprocessable Entity | Validation failed                 |
+| 429  | Too Many Requests    | Rate limiting exceeded            |
+
+**Example:**
+
+```http
+POST /users
+{
+  "email": "invalid"
+}
+→ 422 Unprocessable Entity
+```
+
+---
+
+## Server Error Responses (500–599)
+
+Errors caused by **server-side issues**.
+
+| Code | Name                       | Meaning                                |
+| ---- | -------------------------- | -------------------------------------- |
+| 500  | Internal Server Error      | Generic server failure                 |
+| 502  | Bad Gateway                | Upstream service error                 |
+| 503  | Service Unavailable        | Server overloaded or under maintenance |
+| 504  | Gateway Timeout            | Upstream service timed out             |
+| 505  | HTTP Version Not Supported | Client used unsupported HTTP version   |
+
+**Example (microservice architecture):**
+
+```text
+API → Auth Service → Database
+```
+
+If Auth Service fails:
+
+```http
+→ 502 Bad Gateway
+```
+
+---
+
+## Best Practices for Backend Engineers
+
+1. Always **return appropriate status codes** for each request.
+2. `2xx` → success, `3xx` → redirect, `4xx` → client error, `5xx` → server error.
+3. Log **unusual 4xx/5xx codes** for debugging.
+4. Use **422** for validation errors instead of generic 400.
+5. Use `304 Not Modified` to optimize caching and reduce bandwidth.
+6. Never expose **stack traces** to clients—log internally.
+7. Remember common codes:
+
+    ```
+    200 OK
+    201 Created
+    204 No Content
+    400 Bad Request
+    401 Unauthorized
+    403 Forbidden
+    404 Not Found
+    409 Conflict
+    422 Unprocessable Entity
+    429 Too Many Requests
+    500 Internal Server Error
+    503 Service Unavailable
+    ```
+
+---
+
+Mastering HTTP status codes helps backend engineers:
+
+-   Debug APIs efficiently
+-   Design predictable and professional APIs
+-   Handle caching and redirects correctly
+-   Maintain scalable and robust backend systems
